@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Sistema de Control Horario Profesional con captura de foto">
+    <title>Sistema de Fichaje Profesional</title>
+    
+    <!-- Icono para pantalla de inicio -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🕐</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='75' font-size='60' text-anchor='middle' fill='white'>🕐</text></svg>">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlNpc3RlbWEgZGUgRmljaGFqZSBQcm9mZXNpb25hbCIsCiAgInNob3J0X25hbWUiOiAiRmljaGFqZSIsCiAgInN0YXJ0X3VybCI6ICIuLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzY2N2VlYSIsCiAgInRoZW1lX2NvbG9yIjogIiM2NjdlZWEiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48cmVjdCB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgcng9JzIwJyBmaWxsPSclMjM2NjdlZWEnLz48dGV4dCB4PSc1MCcgeT0nNzUnIGZvbnQtc2l6ZT0nNjAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZpbGw9J3doaXRlJz7wn5WQPC90ZXh0Pjwvc3ZnPiIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzNjY3ZWVhJy8+PHRleHQgeD0nNTAnIHk9Jzc1JyBmb250LXNpemU9JzYwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZSc+8J+VkDwvdGV4dD48L3N2Zz4iLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiCiAgICB9CiAgXQp9">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .current-time {
+            font-size: 3em;
+            color: #333;
+            font-weight: bold;
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .current-date {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .camera-section {
+            text-align: center;
+        }
+
+        #video {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            background: #000;
+            display: none;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .photo-preview {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .status-out {
+            background: #fee;
+            color: #c00;
+        }
+
+        .status-in {
+            background: #efe;
+            color: #0a0;
+        }
+
+        .records-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .record-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .record-item.checkout {
+            border-left-color: #f45c43;
+        }
+
+        .record-date {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .record-time {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .record-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .employee-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .employee-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .camera-placeholder {
+            background: #f0f0f0;
+            padding: 60px 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            margin: 20px 0;
+        }
+
+        .camera-placeholder svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕐 Sistema de Control Horario</h1>
+            <div class="current-time" id="currentTime">00:00:00</div>
+            <div class="current-date" id="currentDate"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="card camera-section">
+                <h2>Registro de Fichaje</h2>
+                
+                <input type="text" class="employee-input" id="employeeName" placeholder="Nombre del trabajador">
+                
+                <div id="cameraPlaceholder" class="camera-placeholder">
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 15c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0-8c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5zm0-3c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8z"/>
+                    </svg>
+                    <p>Haz clic en "Activar Cámara" para tomar tu foto</p>
+                </div>
+                
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                <img id="photoPreview" class="photo-preview">
+                
+                <div id="alert" class="alert"></div>
+                
+                <div class="status-badge" id="statusBadge">Estado: Fuera</div>
+                
+                <div>
+                    <button class="btn" id="startCamera">📷 Activar Cámara</button>
+                    <button class="btn" id="capturePhoto" style="display:none;">📸 Tomar Foto</button>
+                    <button class="btn" id="retakePhoto" style="display:none;">🔄 Repetir Foto</button>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-success" id="checkIn" disabled>✅ Entrada</button>
+                    <button class="btn btn-danger" id="checkOut" disabled>❌ Salida</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Estadísticas del Año</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalHours">0</div>
+                        <div class="stat-label">Horas Totales</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalDays">0</div>
+                        <div class="stat-label">Días Trabajados</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="todayHours">0</div>
+                        <div class="stat-label">Horas Hoy</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="thisMonthHours">0</div>
+                        <div class="stat-label">Horas Este Mes</div>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 30px;">Historial de Fichajes</h2>
+                <div class="records-list" id="recordsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let stream = null;
+        let capturedPhoto = null;
+        let currentStatus = 'out'; // 'in' o 'out'
+        let records = JSON.parse(localStorage.getItem('timeRecords')) || [];
+
+        // Elementos del DOM
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const photoPreview = document.getElementById('photoPreview');
+        const startCameraBtn = document.getElementById('startCamera');
+        const capturePhotoBtn = document.getElementById('capturePhoto');
+        const retakePhotoBtn = document.getElementById('retakePhoto');
+        const checkInBtn = document.getElementById('checkIn');
+        const checkOutBtn = document.getElementById('checkOut');
+        const employeeNameInput = document.getElementById('employeeName');
+        const statusBadge = document.getElementById('statusBadge');
+        const recordsList = document.getElementById('recordsList');
+        const alertBox = document.getElementById('alert');
+        const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+
+        // Actualizar reloj
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const date = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            document.getElementById('currentTime').textContent = time;
+            document.getElementById('currentDate').textContent = date.charAt(0).toUpperCase() + date.slice(1);
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Activar cámara
+        startCameraBtn.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user', width: 1280, height: 720 } 
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                cameraPlaceholder.style.display = 'none';
+                startCameraBtn.style.display = 'none';
+                capturePhotoBtn.style.display = 'inline-block';
+            } catch (error) {
+                showAlert('Error al acceder a la cámara: ' + error.message, 'error');
+            }
+        });
+
+        // Capturar foto
+        capturePhotoBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            capturedPhoto = canvas.toDataURL('image/jpeg', 0.8);
+            photoPreview.src = capturedPhoto;
+            photoPreview.style.display = 'block';
+            
+            video.style.display = 'none';
+            capturePhotoBtn.style.display = 'none';
+            retakePhotoBtn.style.display = 'inline-block';
+            
+            // Detener stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Habilitar botones de fichaje
+            checkInBtn.disabled = false;
+            checkOutBtn.disabled = false;
+            
+            showAlert('Foto capturada correctamente', 'success');
+        });
+
+        // Repetir foto
+        retakePhotoBtn.addEventListener('click', () => {
+            photoPreview.style.display = 'none';
+            retakePhotoBtn.style.display = 'none';
+            startCameraBtn.style.display = 'inline-block';
+            capturedPhoto = null;
+            checkInBtn.disabled = true;
+            checkOutBtn.disabled = true;
+        });
+
+        // Registrar entrada
+        checkInBtn.addEventListener('click', () => {
+            if (!employeeNameInput.value.trim()) {
+                showAlert('Por favor, introduce el nombre del trabajador', 'error');
+                return;
+            }
+            
+            if (!capturedPhoto) {
+                showAlert('Por favor, captura una foto primero', 'error');
+                return;
+            }
+
+            const now = new Date();
+            const record = {
+                id: Date.now(),
+                employee: employeeNameInput.value.trim(),
+                type: 'in',
+                timestamp: now.toISOString(),
+                photo: capturedPhoto
+            };
+
+            records.unshift(record);
+            localStorage.setItem('timeRecords', JSON.stringify(records));
+            
+            currentStatus = 'in';
+            updateStatus();
+            updateRecordsList();
+            updateStats();
+            resetForm();
+            
+            showAlert(`Entrada registrada correctamente a las ${now.toLocaleTimeString('es-ES')}`, 'success');
+        });
+
+        // Registrar salida
+        checkOutBtn.addEventListener('click', () => {
+            if (!employeeNameInput.value.trim()) {
+                showAlert('Por favor, introduce el nombre del trabajador', 'error');
+                return;
+            }
+            
+            if (!capturedPhoto) {
+                showAlert('Por favor, captura una foto primero', 'error');
+                return;
+            }
+
+            const now = new Date();
+            const record = {
+                id: Date.now(),
+                employee: employeeNameInput.value.trim(),
+                type: 'out',
+                timestamp: now.toISOString(),
+                photo: capturedPhoto
+            };
+
+            records.unshift(record);
+            localStorage.setItem('timeRecords', JSON.stringify(records));
+            
+            currentStatus = 'out';
+            updateStatus();
+            updateRecordsList();
+            updateStats();
+            resetForm();
+            
+            showAlert(`Salida registrada correctamente a las ${now.toLocaleTimeString('es-ES')}`, 'success');
+        });
+
+        // Actualizar estado
+        function updateStatus() {
+            if (currentStatus === 'in') {
+                statusBadge.textContent = 'Estado: Trabajando';
+                statusBadge.className = 'status-badge status-in';
+            } else {
+                statusBadge.textContent = 'Estado: Fuera';
+                statusBadge.className = 'status-badge status-out';
+            }
+        }
+
+        // Resetear formulario
+        function resetForm() {
+            photoPreview.style.display = 'none';
+            retakePhotoBtn.style.display = 'none';
+            startCameraBtn.style.display = 'inline-block';
+            cameraPlaceholder.style.display = 'block';
+            video.style.display = 'none';
+            capturedPhoto = null;
+            checkInBtn.disabled = true;
+            checkOutBtn.disabled = true;
+        }
+
+        // Mostrar alerta
+        function showAlert(message, type) {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 4000);
+        }
+
+        // Actualizar lista de registros
+        function updateRecordsList() {
+            recordsList.innerHTML = '';
+            
+            records.slice(0, 20).forEach(record => {
+                const div = document.createElement('div');
+                div.className = `record-item ${record.type === 'out' ? 'checkout' : ''}`;
+                
+                const date = new Date(record.timestamp);
+                const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const timeStr = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                
+                div.innerHTML = `
+                    <div>
+                        <div class="record-date">${record.employee}</div>
+                        <div>${dateStr} - ${record.type === 'in' ? '✅ Entrada' : '❌ Salida'}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="record-time">${timeStr}</div>
+                        ${record.photo ? `<img src="${record.photo}" class="record-thumb" alt="Foto">` : ''}
+                    </div>
+                `;
+                
+                recordsList.appendChild(div);
+            });
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const today = now.toDateString();
+
+            let totalHours = 0;
+            let todayHours = 0;
+            let monthHours = 0;
+            let workDays = new Set();
+
+            // Agrupar registros por empleado y día
+            const dayRecords = {};
+            
+            records.forEach(record => {
+                const recordDate = new Date(record.timestamp);
+                if (recordDate.getFullYear() !== currentYear) return;
+
+                const dayKey = `${record.employee}-${recordDate.toDateString()}`;
+                
+                if (!dayRecords[dayKey]) {
+                    dayRecords[dayKey] = [];
+                }
+                dayRecords[dayKey].push(record);
+            });
+
+            // Calcular horas para cada día
+            Object.keys(dayRecords).forEach(dayKey => {
+                const dayRecs = dayRecords[dayKey].sort((a, b) => 
+                    new Date(a.timestamp) - new Date(b.timestamp)
+                );
+
+                let dayHours = 0;
+                for (let i = 0; i < dayRecs.length - 1; i += 2) {
+                    if (dayRecs[i].type === 'in' && dayRecs[i + 1] && dayRecs[i + 1].type === 'out') {
+                        const start = new Date(dayRecs[i].timestamp);
+                        const end = new Date(dayRecs[i + 1].timestamp);
+                        const hours = (end - start) / (1000 * 60 * 60);
+                        dayHours += hours;
+                    }
+                }
+
+                totalHours += dayHours;
+                
+                const recordDate = new Date(dayRecs[0].timestamp);
+                workDays.add(recordDate.toDateString());
+                
+                if (recordDate.toDateString() === today) {
+                    todayHours = dayHours;
+                }
+                
+                if (recordDate.getMonth() === currentMonth) {
+                    monthHours += dayHours;
+                }
+            });
+
+            document.getElementById('totalHours').textContent = Math.round(totalHours);
+            document.getElementById('totalDays').textContent = workDays.size;
+            document.getElementById('todayHours').textContent = todayHours.toFixed(1);
+            document.getElementById('thisMonthHours').textContent = Math.round(monthHours);
+        }
+
+        // Inicializar
+        updateRecordsList();
+        updateStats();
+        updateStatus();
+    </script>
+</body>
+</html>
